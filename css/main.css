@@ -1,0 +1,16 @@
+body {
+    font-family: Impact, Charcoal, sans-serif;
+    margin: 0;
+    color: #1b2b45;
+}
+
+.wrapper {
+    max-width: 600px;
+    margin: auto;
+}
+
+hr {
+    border: none;
+    background-color: #1b2b45;
+    height: 3px;
+}
