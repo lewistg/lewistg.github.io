@@ -1,5 +1,698 @@
----
-layout: default
----
+<html>
+<head>
+	<style>
+		body {
+			padding: 0px;
+			margin: 0px;
+			text-align: center;
+			font-family: "Courier New", Courier, monospace; 
+		}
 
-Hello kindly comets.
+		.scene-container {
+			border: solid;
+			display: inline-block;
+			text-align: center;
+			position: relative;
+			width: 600px;
+			height: 300px;
+		}
+
+		.layer {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+		}
+
+		.stars-layer {
+			z-index: 0;
+		}
+
+		.comet-layer {
+			left: 3px;
+			top: 3px;
+			z-index: 1;
+		}
+
+		.mountain-layer {
+			z-index: 2;
+		}
+
+		input, button {
+			border: solid;
+			background: #ffffff;
+			height: 40px;
+			font-family: "Courier New", Courier, monospace; 
+			font-size: 12pt;
+			font-weight: bold;
+			margin-right: auto;
+			margin-left: auto;
+			display: block;
+			margin-top: 30px;
+		}
+
+		button:hover{
+			background: #eeeeee;
+		}
+		button:active {
+			background: #000000;
+			color: #ffffff;
+		}
+
+		.code-controls input {
+			display: inline-block;
+		}
+
+		.code-controls button {
+			display: inline-block;
+		}
+
+		.message {
+			color: green;
+			font-weight: bold;
+		}
+
+		#cycle-btn {
+			width: 158px;
+		}
+	</style>
+
+</head>
+<body>
+	<h2 style = "margin-top: 30px;">Kindly Comets</h2>
+	<div class="scene-container">
+		<img class="layer mountain-layer" src="y-mount-colored.png">
+		<canvas class="layer comet-layer" width="600px" height="300px"></canvas>
+		<img class="layer stars-layer" src="background-stars.png">
+	</div>
+	<br />
+	<div class="code-controls" style="position: relative">
+		<button id="new-thought-btn">New Thought</button>
+		<button id="cycle-btn" class="cycle">Cycle Thoughts</button>
+		<span>-</span>
+		<input id="code-field" type="text" placeholder="Enter code"></input>
+		<button id="submit-code-btn">Submit</button>
+	</div>
+	<p class="message"></p>
+	<div>
+		<audio controls>
+		  <source src="Secret-Journey.mp3" type="audio/mpeg">
+		  <embed height="50" width="100" src="Secret-Journey.mp3">
+		</audio>
+	</div>
+	<script>
+
+var requestAnimationFrame =  
+	window.requestAnimationFrame ||
+	window.webkitRequestAnimationFrame ||
+	window.mozRequestAnimationFrame ||
+	window.msRequestAnimationFrame ||
+	window.oRequestAnimationFrame ||
+	function(callback) {
+	  return setTimeout(callback, 1);
+	};
+
+var Comet = function(startPos, goalPos, onBurnout, onReachGoal) {
+	this.particles = [];
+	this.pos = startPos;
+	
+	var xDir = goalPos.x - startPos.x,
+	yDir = goalPos.y - startPos.y,
+	mag = Math.sqrt(xDir * xDir + yDir * yDir);
+
+	this.dir = {
+		x: xDir / mag, 
+		y: yDir / mag 
+	};
+	this.goalPos = goalPos;
+	this.speed = 0.3;
+	this.fadingRate = 0.08;
+	this.numParticles = 20;
+	this.reachedGoal = false;
+	this.onBurnout = onBurnout;
+	this.onReachGoal = onReachGoal;
+
+	for(var i = 0; i < this.numParticles; i++) {
+		this.particles.push(this.genParticle());
+	}
+};
+
+Comet.prototype.draw = function(ctx) {
+	//ctx.beginPath();	
+	for(var i = 0; i < this.particles.length; i++) {
+			if (this.particles[i]) {
+				ctx.moveTo(this.particles[i].pos.x, ctx.canvas.height - this.particles[i].pos.y);
+				ctx.arc(Math.floor(this.particles[i].pos.x), Math.floor(ctx.canvas.height - this.particles[i].pos.y), 1, 0, 2 * Math.PI, false);
+			}
+	}
+	//ctx.fill();
+	//ctx.stroke();
+};
+
+Comet.prototype.genParticle = function() {
+	var negDir = {
+		x: -this.dir.x,
+		y: -this.dir.y
+	},
+	// scale down norm, to minimize the cone
+	norm = {
+		x: negDir.y * 0.20,
+		y: -negDir.x * 0.20
+	},
+	randSpeedY = Math.random() * 100 / 1000,
+	randSpeedX = Math.max(Math.random() * 100 / 1000, randSpeedY)
+	randVel = {
+		x: negDir.x * randSpeedX + norm.x * randSpeedY,
+		y: negDir.y * randSpeedX + norm.y * randSpeedY
+	}
+
+	return {
+		pos: {
+			x: this.pos.x,
+			y: this.pos.y
+		},
+		vel: randVel,
+		life: (Math.random() * 20)
+	};
+};
+
+Comet.prototype.getStepFunc = function() {
+	var that = this,
+	prevTime = new Date().getTime();
+
+	var sideOfGoal = function() {
+		return that.dir.x * (that.pos.x - that.goalPos.x) + that.dir.y * (that.pos.y - that.goalPos.y);
+	},
+	prevSideOfGoal = sideOfGoal();
+
+	var step = function() {
+		var currTime = new Date().getTime();
+		timeDelta = currTime - prevTime,
+		prevTime = currTime,
+		currSideOfGoal = sideOfGoal();
+
+		if(!that.reachedGoal) {
+			if((prevSideOfGoal > 0 && currSideOfGoal < 0) || (prevSideOfGoal < 0 && currSideOfGoal > 0)) {
+				that.reachedGoal = true;
+				that.onReachGoal();
+			}
+			prevSideOfGoal = currSideOfGoal;
+		}
+
+		var burnedOut = true;
+		for(var i = 0; i < that.particles.length; i++) {
+			if(!that.particles[i])
+				continue;
+
+			burnedOut = false;
+
+			if (that.particles[i].life < 0) {
+				if(!that.reachedGoal) {
+					that.particles[i] = that.genParticle();
+				}
+				else {
+					delete that.particles[i];
+				}
+			}
+
+			if(that.particles[i]) {
+				that.particles[i].pos.x += that.particles[i].vel.x * timeDelta;
+				that.particles[i].pos.y += that.particles[i].vel.y * timeDelta;
+				that.particles[i].life -= that.fadingRate * timeDelta;
+
+			}
+		}
+
+		that.pos.x += that.dir.x * that.speed * timeDelta;
+		that.pos.y += that.dir.y * that.speed * timeDelta;
+
+		if(!burnedOut) {
+			requestAnimationFrame(step);
+		}
+		else {
+			that.onBurnout();
+		}
+
+	};
+
+	return step;
+};
+
+Comet.prototype.animate = function() {
+	requestAnimationFrame(this.getStepFunc());
+};
+
+/**
+TODO: Store the bitmaps in bits.
+*/
+
+var CometShower = function(skySize) {
+	this.nComets = 20;
+	this.comets = [];
+	this.availCometSlots = [];
+	this.skySize = skySize;
+	this.stepFunc = this.getIdleStepFunc();
+	this.doneWriting = false;
+
+	for(var i = 0; i < this.nComets; i++) {
+		this.availCometSlots[i] = i;
+	}
+
+	this.litPoints = [];
+};
+
+CometShower.prototype.animate = function() {
+	requestAnimationFrame(this.stepFunc);
+}
+
+CometShower.prototype.draw = function(ctx) {
+	ctx.strokeStyle = '#ffffff';
+	ctx.fillStyle = '#ffffff';
+	ctx.beginPath();	
+	for(var i = 0; i < this.comets.length; i++) {
+		this.comets[i].draw(ctx);
+	}
+
+	// draw the points that have been reached
+	for(var i = 0; i < this.litPoints.length; i++) {
+			if (this.litPoints[i]) {
+				ctx.moveTo(this.litPoints[i].x, ctx.canvas.height - this.litPoints[i].y);
+				ctx.arc(Math.floor(this.litPoints[i].x), Math.floor(ctx.canvas.height - this.litPoints[i].y), 2, 0, 2 * Math.PI, false);
+			}
+	}
+	ctx.fill();
+	ctx.stroke();
+};
+
+CometShower.prototype.writeWord = function(word, onFinish) {		
+	if(this.writingWord)
+		return;
+	else
+		this.writingWord = true;
+
+	var setupAndWrite = function() {
+		this.goalQueue = [];
+		var letterPos = {
+			x: 200,
+			y: 150
+		};
+
+		approxLineWidth = Math.round(this.skySize.width * 0.666);
+
+		var starSpace = 4,
+		charSpace = 2.5,
+		charHeight = charBitmaps['A'].length;
+
+		var that = this;
+		newlineInfo = (function (word) {
+			var newlineInfo = {
+				wordWithNewlines: "",
+				newlinePos: []
+			};
+
+			var currLineWidth = 0,
+			currLineY = that.skySize.height - (that.skySize.height * 0.25);
+			for(var i = 0; i < word.length; i++) {
+				var currChar = word.charAt(i),
+				charWidth = charBitmaps[currChar][0].length * starSpace + charSpace;
+				currLineWidth += charWidth;
+				if ((i == word.length - 1) || (currLineWidth > approxLineWidth && currChar == ' ')) {
+					newlineInfo.newlinePos.push({
+						x: (that.skySize.width - currLineWidth) / 2.0,
+						y: currLineY 
+					});
+					if(currChar == ' ') {
+						newlineInfo.wordWithNewlines += '\n';
+						currLineY -= (charHeight * starSpace);
+						currLineWidth = 0;
+					}
+					else {
+						newlineInfo.wordWithNewlines += currChar;
+					}
+						
+				}
+				else {
+					newlineInfo.wordWithNewlines += currChar; 
+				}
+			}
+
+			return newlineInfo; 
+		})(word);
+
+		var currCharPos = null;
+		for(var k = 0; k < newlineInfo.wordWithNewlines.length; k++) {
+			if(k === 0) {
+				currCharPos = newlineInfo.newlinePos.shift();
+			}
+			else if(newlineInfo.wordWithNewlines.charAt(k) === '\n') {
+				currCharPos = newlineInfo.newlinePos.shift();
+				continue;
+			}
+
+			var bitmap = charBitmaps[newlineInfo.wordWithNewlines.charAt(k)],
+			currGoal = 0;
+			for(var i = 0; i < bitmap.length; i++) {
+				for(var j = 0; j < bitmap[0].length; j++) {
+					if(bitmap[i][j] == 1) {
+						this.goalQueue.push({x: currCharPos.x + j * starSpace, y: currCharPos.y + (bitmap.length - i) * starSpace});
+					}
+				}
+			}
+			currCharPos.x += bitmap[0].length * starSpace + charSpace;
+		}
+
+		this.stepFunc = this.getWritingWordStepFunc(function() {
+			that.stepFunc = that.getIdleStepFunc(); 
+			that.writingWord = false;
+
+			if (!!onFinish) {
+				onFinish();
+			}
+		});
+
+		requestAnimationFrame(this.stepFunc);
+	};
+
+	this.stepFunc = this.getDeleteWordStepFunc(setupAndWrite.bind(this));
+};
+
+CometShower.getOnBurnout = function(that, i) {
+	return function() {
+		that.availCometSlots.push(i);
+	};
+};
+
+CometShower.prototype.getWritingWordStepFunc = function (onCompletion) {
+	var that = this,
+	prevTime = new Date().getTime(),
+	cometRate = 500,
+	sinceLastComet = 0,
+	cometsAtATime = 5,
+	pointsToLight = this.goalQueue.length;
+
+	getOnReachGoal = function(i) {
+		return function() {
+			that.litPoints.push(that.comets[i].goalPos);
+			if (pointsToLight == that.litPoints.length) {
+				onCompletion && onCompletion();
+			}
+		};
+	};
+
+	var step = function() {
+		var currTime = new Date().getTime();
+		timeDelta = currTime - prevTime,
+		prevTime = currTime;
+		cometsAtATime = 5;
+
+		sinceLastComet += timeDelta;
+		if(sinceLastComet > cometRate && that.availCometSlots.length > 0) {
+			sinceLastComet = 0;
+
+			for (var i = 0; that.availCometSlots.length > 0 && i < cometsAtATime && that.goalQueue.length > 0; i++) {
+				var availSlot = that.availCometSlots.shift(),
+				goal = that.goalQueue.shift() 
+				that.comets[availSlot] = new Comet(
+					{x: Math.random() * -50, y: Math.random() * 100 + 300}, 
+					goal,
+					CometShower.getOnBurnout(that, availSlot),
+					getOnReachGoal(availSlot)
+				);
+				that.comets[availSlot].animate();
+			}
+		}
+
+		requestAnimationFrame(that.stepFunc);
+	};
+
+	return step;
+};
+
+var updatePos = function(pos, timeDelta, vel) {
+	pos.x += vel.x * timeDelta;
+	pos.y += vel.y * timeDelta;
+};
+
+CometShower.prototype.getIdleStepFunc = function () {
+	var that = this,
+	prevTime = new Date().getTime(),
+	maxCometRate = 1000,
+	cometRate = Math.random() * maxCometRate,
+	sinceLastComet = 0,
+	cometsAtATime = 1;
+
+	var step = function() {
+		var currTime = new Date().getTime();
+		timeDelta = currTime - prevTime,
+		prevTime = currTime;
+		sinceLastComet += timeDelta;
+
+		if(sinceLastComet > cometRate && that.availCometSlots.length > 0) {
+			sinceLastComet = 0;
+			cometRate = Math.random() * maxCometRate;
+
+			for (var i = 0; that.availCometSlots.length > 0 && i < cometsAtATime; i++) {
+				var availSlot = that.availCometSlots.shift(),
+				goal = {x: that.skySize.width * Math.random() + 600, y: 25};
+				that.comets[availSlot] = new Comet(
+					{x: Math.random() * -50, y: Math.random() * 100 + 300}, 
+					goal,
+					CometShower.getOnBurnout(that, availSlot),
+					function() {}
+				);
+				that.comets[availSlot].animate();
+			}
+		}
+
+		requestAnimationFrame(that.stepFunc);
+	};
+
+	return step;
+};
+
+CometShower.prototype.getDeleteWordStepFunc = function(onComplete) {
+	var that = this,
+	prevTime = new Date().getTime(),
+	lastDelete = 0,
+	deleteRate = 25;
+
+	var getRandVel = function() {
+		var randTheta = Math.random() * (Math.PI * 2);
+		return {
+			x: Math.cos(randTheta) * 0.01,
+			y: Math.sin(randTheta) * 0.01 
+		};
+	};
+
+	for(var i = 0; i < this.litPoints.length; i++) {
+		this.litPoints[i].vel = getRandVel();
+	}
+
+	var step = function() {
+		var currTime = new Date().getTime();
+		timeDelta = currTime - prevTime,
+		prevTime = currTime,
+		lastDelete += timeDelta;
+
+		if(lastDelete > deleteRate) {
+			lastDelete = 0;
+			that.litPoints.shift();
+		}
+
+		for(var i = 0; i < that.litPoints.length; i++) {
+			updatePos(that.litPoints[i], timeDelta, that.litPoints[i].vel);
+		}
+
+		if (that.litPoints.length > 0) {
+			requestAnimationFrame(step);
+		}
+		else {
+			onComplete && onComplete();
+		}
+	};
+
+	return step;
+};
+
+var getNormalMessage = function() {
+	var positiveMessages = [
+		'PUT YOUR SHOULDER TO THE WHEEL!',
+		'IT IS BETTER TO LOOK UP!',
+		'EARLY TO BED EARLY TO RISE!',
+		'COME WHAT MAY AND LOVE IT!',
+		'DREAM THE IMPOSSIBLE DREAM!',
+		'IT IS OKAY TO MAKE MISTAKES',
+		'BE PATIENT WITH YOURSELF'
+	],
+
+	word = positiveMessages[Math.round(Math.random() * (positiveMessages.length - 1))];
+
+	return word;
+};
+
+var getDrJLBMessageFunc = function(key) {
+	var cipherMessages = [
+		[59, 58, 57, 47, 16, 52, 60, 14, 52, 42, 56, 47, 50, 60, 38, 20, 42, 62, 52, 19, 60, 46, 58, 68, 54, 64, 43, 73, 5, 54, 51, 42, 49, 71, 39, 66, 15],
+		[73, 68, 73, 127, 52, 52, 60, 21, 61, 5, 65, 36, 46, 50, 127, 72, 55, 5, 33, 56, 15, 57, 49, 66, 59, 57, 34, 68, 5, 60, 61, 64, 6],
+		[60, 58, 72, 127, 68, 45, 51, 14, 48, 52, 66, 35, 9, 66, 39, 61, 54, 44, 50, 19, 66, 61, 53, 51, 64, 21, 127, 80, 47, 67, 65, 61, 5, 63, 36, 61, 14, 51, 60, 41, 57, 127, 63, 48, 55, 48],
+		[66, 58, 65, 36, 61, 39, 51, 64, 21, 5, 76, 46, 62, 14, 32, 70, 45, 5, 32, 19, 66, 52, 53, 60, 65, 57, 35, 16, 59, 47, 58, 50, 41, 52, 51, 56, 64, 0],
+		[57, 73, 20, 40, 67, 5, 61, 57, 42, 62, 19, 51, 56, 14, 39, 53, 62, 42, 127, 71, 55, 56, 65, 55, 61, 72, 50, 28, 5, 48, 67, 61, 5, 55, 46, 55, 21, 51, 20, 42, 58, 56, 19, 67, 49, 49, 61, 21, 53, 43, 60, 6],
+		[52, 68, 66, 6, 68, 5, 48, 67, 66, 5, 56, 53, 46, 64, 56, 20, 60, 45, 46, 72, 54, 49, 64, 16, 73, 60, 32, 68, 5, 71, 61, 62, 5, 59, 32, 63, 51]	
+	];
+
+
+	var positiveMessages = [];
+	for(var i = 0; i < cipherMessages.length; i++) {
+		positiveMessages.push(EncryptUtils.decrypt(key, cipherMessages[i]));
+	}
+
+	index = Math.round(Math.random() * (positiveMessages.length - 1));
+
+	var messageFunc = function(){
+		index = (index + 1) % positiveMessages.length;
+		return positiveMessages[index];
+	};
+
+	return messageFunc;
+};
+
+
+var CosmicShow = function(ctx) {
+	var ctx = ctx;
+	var cometShower = new CometShower({width: ctx.canvas.width, height: ctx.canvas.height});
+	var messageFunc = getNormalMessage;
+	var cycle = false;
+
+	document.querySelector('#new-thought-btn').onclick = function() {
+		var word = messageFunc(); 
+		cometShower.writeWord(word);
+	};
+
+	var codeField = document.querySelector('#code-field');
+	var message = document.querySelector('.message');
+	document.querySelector('#submit-code-btn').onclick = function() {
+		var key = codeField.value;
+		if(String.fromCharCode.apply(this, EncryptUtils.encrypt(key, key)) === 
+			String.fromCharCode.apply(this,[96, 106, 104, 62, 96, 74, 92, 92, 82, 74, 102, 62, 82, 92, 62, 104, 80, 74, 62, 102, 94, 82, 88]) ) {
+			messageFunc = getDrJLBMessageFunc(key);
+			message.innerHTML = 'JB Mode';
+		}
+	};
+
+	var stopCycling = false;
+	var cycleWrite = function() {
+		var word = messageFunc(); 
+		cometShower.writeWord(word, function() {
+			if (!stopCycling) {
+				window.setTimeout(cycleWrite, 5000);	
+			}
+		});
+	};
+
+	var cycleButton = document.querySelector('#cycle-btn')
+	cycleButton.onclick = function() {
+		if (cycleButton.className === 'cycle') {
+			stopCycling = false;
+			cycleWrite();
+			cycleButton.className = 'stop';
+			cycleButton.innerHTML = 'Stop Cycle';
+		}
+		else {
+			stopCycling = true;
+			cycleButton.className = 'cycle';
+			cycleButton.innerHTML = 'Cycle Thoughts';
+		}
+	};
+
+
+	this.animate = function() {
+		cometShower.animate();
+		return this;
+	};
+
+	this.startRendering = function() {
+		var that = this;
+		var render = function() {
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+			cometShower.draw(ctx);
+			requestAnimationFrame(render);
+		};
+				
+		requestAnimationFrame(render);
+		return this;
+	};
+};
+
+window.onload = function() {
+	var fireworksLayer = document.querySelector('.comet-layer');
+	var ctx = fireworksLayer.getContext('2d');
+	var fireworkShow = new CosmicShow(ctx);
+	fireworkShow.startRendering().animate();
+};
+
+var EncryptUtils = {
+	encrypt: function(key, plainText) {
+		var cipherText = [];
+		var i = 0;
+		for(var j = 0; j < plainText.length; j++) {
+			cipherText.push((plainText.charCodeAt(j) + key.charCodeAt(i)) % 128);
+			i = (i + 1) % key.length;
+		}
+		return cipherText;
+	},
+
+	decrypt: function(key, cipherText) {
+		var plainText = '';
+		var i = 0;
+		for(var j = 0; j < cipherText.length; j++) {
+			var charCode = (cipherText[j] - key.charCodeAt(i)) % 128;
+			if (charCode < 0)
+				charCode += 128;
+			plainText += String.fromCharCode(charCode);
+			i = (i + 1) % key.length;
+		}
+		return plainText;
+	}
+};
+
+var charBitmaps = {
+	A: [[0, 1, 0],[1, 0, 1],[1, 1, 1],[1, 0, 1],[1, 0, 1],[0, 0, 0]],
+	B: [[1, 1, 0],[1, 0, 1],[1, 1, 0],[1, 0, 1],[1, 1, 0],[0, 0, 0]],
+	C: [[0, 1, 0],[1, 0, 1],[1, 0, 0],[1, 0, 1],[0, 1, 0],[0, 0, 0]],
+	D: [[1, 1, 0],[1, 0, 1],[1, 0, 1],[1, 0, 1],[1, 1, 0],[0, 0, 0]],
+	E: [[1, 1, 1],[1, 0, 0],[1, 1, 0],[1, 0, 0],[1, 1, 1],[0, 0, 0]],
+	F: [[1, 1, 1],[1, 0, 0],[1, 1, 0],[1, 0, 0],[1, 0, 0],[0, 0, 0]],
+	G: [[0, 1, 1, 0],[1, 0, 0, 0],[1, 0, 1, 1],[1, 0, 0, 1],[0, 1, 1, 0],[0, 0, 0, 0]],
+	H: [[1, 0, 1],[1, 0, 1],[1, 1, 1],[1, 0, 1],[1, 0, 1],[0, 0, 0]],
+	I: [[1],[1],[1],[1],[1],[0]],
+	J: [[0, 0, 1],[0, 0, 1],[0, 0, 1],[1, 0, 1],[0, 1, 0],[0, 0, 0]],
+	K: [[1, 0, 1],[1, 0, 1],[1, 1, 0],[1, 0, 1],[1, 0, 1],[0, 0, 0]],
+	L: [[1, 0, 0],[1, 0, 0],[1, 0, 0],[1, 0, 0],[1, 1, 1],[0, 0, 0]],
+	M: [[1, 0, 0, 0, 1],[1, 1, 0, 1, 1],[1, 0, 1, 0, 1],[1, 0, 1, 0, 1],[1, 0, 0, 0, 1],[0, 0, 0, 0, 0]],
+	N: [[1, 0, 0, 1],[1, 1, 0, 1],[1, 0, 1, 1],[1, 0, 0, 1],[1, 0, 0, 1],[0, 0, 0, 0]],
+	O: [[0, 1, 1, 0],[1, 0, 0, 1],[1, 0, 0, 1],[1, 0, 0, 1],[0, 1, 1, 0],[0, 0, 0, 0]],
+	P: [[1, 1, 0],[1, 0, 1],[1, 1, 0],[1, 0, 0],[1, 0, 0],[0, 0, 0]],
+	Q: [[0, 1, 1, 0],[1, 0, 0, 1],[1, 0, 0, 1],[1, 0, 0, 1],[0, 1, 1, 0],[0, 0, 0, 1]],
+	R: [[1, 1, 1],[1, 0, 1],[1, 1, 0],[1, 0, 1],[1, 0, 1],[0, 0, 0]],
+	S: [[0, 1, 1],[1, 0, 0],[0, 1, 0],[0, 0, 1],[1, 1, 0],[0, 0, 0]],
+	T: [[1, 1, 1],[0, 1, 0],[0, 1, 0],[0, 1, 0],[0, 1, 0],[0, 0, 0]],
+	U: [[1, 0, 0, 1],[1, 0, 0, 1],[1, 0, 0, 1],[1, 0, 0, 1],[0, 1, 1, 0],[0, 0, 0, 0]],
+	V: [[1, 0, 1],[1, 0, 1],[1, 0, 1],[1, 0, 1],[0, 1, 0],[0, 0, 0]],
+	W: [[1, 0, 0, 0, 1],[1, 0, 1, 0, 1],[1, 0, 1, 0, 1],[1, 1, 0, 1, 1],[1, 0, 0, 0, 1],[0, 0, 0, 0, 0]],
+	X: [[1, 0, 1],[1, 0, 1],[0, 1, 0],[1, 0, 1],[1, 0, 1],[0, 0, 0]],
+	Y: [[1, 0, 1],[1, 0, 1],[0, 1, 0],[0, 1, 0],[0, 1, 0],[0, 0, 0]],
+	Z: [[1, 1, 1],[0, 0, 1],[0, 1, 0],[1, 0, 0],[1, 1, 1],[0, 0, 0]],
+	' ': [[0, 0, 0],[0, 0, 0],[0, 0, 0],[0, 0, 0],[0, 0, 0],[0, 0, 0]],
+	'.': [[0],[0],[0],[0],[1],[0]],
+	'!': [[1],[1],[1],[0],[1],[0]],
+	'\'': [[0, 1],[1, 0],[0, 0],[0, 0],[0, 0],[0, 0]],
+	',': [[0, 0],[0, 0],[0, 0],[0, 0],[0, 1],[1, 0]],
+	'-': [[0, 0, 0],[0, 0, 0],[1, 1, 1],[0, 0, 0],[0, 0, 0],[0, 0, 0]],
+	'"': [[0, 1, 0, 1],[1, 0, 1, 0],[0, 0, 0, 0],[0, 0, 0, 0],[0, 0, 0, 0],[0, 0, 0, 0]],
+	'`': [[1, 0, 1, 0],[0, 1, 0, 1],[0, 0, 0, 0],[0, 0, 0, 0],[0, 0, 0, 0],[0, 0, 0, 0]],
+};
+ 
+
+
+	</script>
+</body>
+</html>
