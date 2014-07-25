@@ -4,9 +4,21 @@ body {
     color: #1b2b45;
 }
 
-.wrapper {
+.columns-wrapper {
     max-width: 600px;
     margin: auto;
+    position: relative;
+}
+
+.left-column-wrapper {
+	max-width: 400px;
+	position: absolute;
+	top: 60px;
+}
+
+.right-column-wrapper {
+	position: absolute;
+	left: 400px;
 }
 
 hr {
