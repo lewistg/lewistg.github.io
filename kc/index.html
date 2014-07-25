@@ -533,7 +533,7 @@ var getNormalMessage = function() {
 	return word;
 };
 
-var getDrJLBMessageFunc = function(key) {
+var getJBMessageFunc = function(key) {
 	var cipherMessages = [
 		[59, 58, 57, 47, 16, 52, 60, 14, 52, 42, 56, 47, 50, 60, 38, 20, 42, 62, 52, 19, 60, 46, 58, 68, 54, 64, 43, 73, 5, 54, 51, 42, 49, 71, 39, 66, 15],
 		[73, 68, 73, 127, 52, 52, 60, 21, 61, 5, 65, 36, 46, 50, 127, 72, 55, 5, 33, 56, 15, 57, 49, 66, 59, 57, 34, 68, 5, 60, 61, 64, 6],
@@ -576,7 +576,7 @@ var CosmicShow = function(ctx) {
 		var key = codeField.value;
 		if(String.fromCharCode.apply(this, EncryptUtils.encrypt(key, key)) === 
 			String.fromCharCode.apply(this,[96, 106, 104, 62, 96, 74, 92, 92, 82, 74, 102, 62, 82, 92, 62, 104, 80, 74, 62, 102, 94, 82, 88]) ) {
-			messageFunc = getDrJLBMessageFunc(key);
+			messageFunc = getJBMessageFunc(key);
 			message.innerHTML = 'JB Mode';
 		}
 	};
