@@ -118,10 +118,16 @@ window.onload = function() {
 		requestAnimationFrame(fadingStep);
 	});
 
+	var buffer = document.createElement('canvas');
+	buffer.width = canvas.width;
+	buffer.height = canvas.height;
+
 	var drawWhiteFade = function() {
 		var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-		for (var i = 0; i < imgData.data.length; i++) {
-			imgData.data[i] = Math.min(imgData.data[i] + opacity * 255, 255);
+		var data = imgData.data; 
+		var length = data.length;
+		for (var i = 0; i < length; i++) {
+			data[i] = Math.min(data[i] + opacity * 255, 255);
 		}
 		ctx.putImageData(imgData, 0, 0); 
 		requestAnimationFrame(drawWhiteFade);
