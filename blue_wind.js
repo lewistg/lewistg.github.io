@@ -128,5 +128,5 @@ window.onload = function() {
 	};
 
 	requestAnimationFrame(fadingStep);
-	//requestAnimationFrame(drawWhiteFade);
+	requestAnimationFrame(drawWhiteFade);
 };
