@@ -14,15 +14,25 @@ body {
 	max-width: 400px;
 	position: absolute;
 	top: 60px;
+	padding: 20px;
+	background-image: url("/bg.png");
 }
 
 .right-column-wrapper {
 	position: absolute;
 	left: 400px;
+	top: 0;
 }
 
 hr {
     border: none;
     background-color: #1b2b45;
     height: 3px;
+}
+
+canvas {
+	position: absolute;
+	left: -100px;
+	top: 0;
+	z-index: 0;
 }
