@@ -122,14 +122,42 @@ window.onload = function() {
 	buffer.width = canvas.width;
 	buffer.height = canvas.height;
 
+
+	// get the current imge data
+	/*buffer.getContext('2d').drawImage(canvas, 0, 0);
+
+	// draw a white background
+	ctx.globalAlpha = 1;
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	ctx.globalAlpha = 0.5;
+	ctx.drawImage(buffer, 0, 0);*/
+
+	ctx.beginPath();
+	ctx.fillStyle = "rgb(0, 0, 0)";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.fill();
+
 	var drawWhiteFade = function() {
-		var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+		// get the current imge data
+		ctx.globalAlpha = 1;
+		buffer.getContext('2d').drawImage(canvas, 0, 0);
+
+		// draw a white background
+		ctx.fillStyle = "rgb(255, 255, 255)";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		ctx.globalAlpha = 0.75;
+		ctx.drawImage(buffer, 0, 0);
+
+		ctx.globalAlpha = 1; 
+		/*var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 		var data = imgData.data; 
 		var length = data.length;
 		for (var i = 0; i < length; i++) {
 			data[i] = Math.min(data[i] + opacity * 255, 255);
 		}
-		ctx.putImageData(imgData, 0, 0); 
+		ctx.putImageData(imgData, 0, 0);*/ 
 		requestAnimationFrame(drawWhiteFade);
 	};
 
