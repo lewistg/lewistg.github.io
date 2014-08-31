@@ -32,7 +32,7 @@ hr {
 
 canvas {
 	position: absolute;
-	left: -100px;
+	left: -150px;
 	top: 0;
 	z-index: 0;
 }
