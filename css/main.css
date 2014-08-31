@@ -35,6 +35,11 @@ body {
 	padding: 50px 5px;
 }
 
+.margin-wrapper {
+	width: 900px;
+	margin: 0 auto;
+}
+
 hr {
     border: none;
     background-color: #1b2b45;
