@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html>
 
-  {% include head.html %}
+	{% include head.html %}
 
-    <body>
+<body>
+	{% include header.html %}
 
-    {% include header.html %}
+	<div class="non-scroller">
+	{% if page.include_wind%}
+		<canvas id="front-wind" width="900" height="400"></canvas>
+	{% endif %}
 
-    <div class="page-content">
-      <div class="wrap">
-      {{ content }}
-      </div>
-    </div>
 
-    {% include footer.html %}
+	<img id="logo" src="/tree.svg"></img>
+	</div>
 
-    </body>
+	<div class="page-content">
+		{{ content }}
+	</div>
+
+	{% if page.include_wind %}
+		<script type="text/javascript" src="bez.js"></script>
+		<script type="text/javascript" src="blue_wind.js"></script>
+	{% endif %}
+
+	{% include footer.html %}
+</body>
 </html>
