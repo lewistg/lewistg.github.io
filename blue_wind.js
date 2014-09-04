@@ -67,8 +67,10 @@ WindGust.prototype.draw = function() {
 
 
 var canvas = null;
+var buffer = null; 
 var ctx = null;
 var pointBuffer = [];
+var canvasMaxWidth = 900; 
 
 var genRandCurve = function(minX, maxX, minY, maxY, xDev) {
 	var yDelta = maxY - minY;
@@ -87,6 +89,27 @@ var genRandCurve = function(minX, maxX, minY, maxY, xDev) {
 		x: maxX,
 		y: yDelta * Math.random() + minY
 	}];
+};
+
+var resizeTimeout = undefined;
+window.onresize = function() {
+	if (typeof resizeTimeout !== 'undefined') {
+		clearTimeout(resizeTimeout);
+	}
+	resizeTimeout = setTimeout(function() {
+		var canvasAspectRatio = 3;
+		canvas.width = Math.min(window.innerWidth, canvasMaxWidth);
+		canvas.height = window.innerHeight / canvasAspectRatio;
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		buffer.width = canvas.width;
+		buffer.height = canvas.height;
+		bufferCtx.globalCompositeOperation = "lighter";
+
+		resizeTimeout = undefined;
+		console.log('Resized');
+	}, 1000);
 };
 
 window.onload = function() {
@@ -118,7 +141,7 @@ window.onload = function() {
 		requestAnimationFrame(fadingStep);
 	});
 	
-	var buffer = document.createElement('canvas');
+	buffer = document.createElement('canvas');
 	buffer.width = canvas.width;
 	buffer.height = canvas.height;
 	bufferCtx = buffer.getContext('2d');
