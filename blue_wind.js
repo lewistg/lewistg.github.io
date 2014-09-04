@@ -114,15 +114,11 @@ window.onresize = function() {
 		bufferCtx.globalCompositeOperation = "lighter";
 
 		resizeTimeout = undefined;
-		console.log('Resized');
 	}, 1000);
 };
 
 window.onload = function() {
 	canvas = document.getElementById("front-wind");
-	canvas.addEventListener("click", function(event) {
-		pointBuffer.push(getMousePos(canvas, event));
-	});
 	initCanvasSize(canvas);
 
 	ctx = canvas.getContext("2d");
