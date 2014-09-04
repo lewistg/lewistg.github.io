@@ -99,8 +99,8 @@ var initCanvasSize = function(canvas) {
 	canvas.height = Math.max(window.innerHeight / canvasAspectRatio, canvasMinHeight);
 };
 
-var resizeTimeout = undefined;
-window.onresize = function() {
+//var resizeTimeout = undefined;
+/*window.onresize = function() {
 	if (typeof resizeTimeout !== 'undefined') {
 		clearTimeout(resizeTimeout);
 	}
@@ -115,7 +115,7 @@ window.onresize = function() {
 
 		resizeTimeout = undefined;
 	}, 1000);
-};
+};*/
 
 window.onload = function() {
 	canvas = document.getElementById("front-wind");

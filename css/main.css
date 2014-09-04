@@ -25,11 +25,13 @@ body {
 }
 
 @media only screen and (max-width: 900px) {
-	position: absolute;
-	left: 0;
-	right auto;
-	bottom: 0;
+	#front-wind {
+		width: 100%;
+		margin: 0;
+		left: auto;
+	}
 }
+
 
 #logo {
 	width: 108px;
