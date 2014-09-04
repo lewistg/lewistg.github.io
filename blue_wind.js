@@ -58,9 +58,9 @@ WindGust.prototype.draw = function() {
 	ctx.beginPath();
 	ctx.lineWidth = 3 * this._thicknessFunc(this.t);
 	var p0 = this.bezPath.getPoint(this.prevt - 0.001);
-	ctx.moveTo(Math.floor(p0.x), Math.floor(p0.y));
+	ctx.moveTo(p0.x, p0.y);
 	var p1 = this.bezPath.getPoint(this.t);
-	ctx.lineTo(Math.floor(p1.x), Math.floor(p1.y));
+	ctx.lineTo(p1.x, p1.y);
 	ctx.stroke();
 	requestAnimationFrame(this.draw.bind(this));
 };
