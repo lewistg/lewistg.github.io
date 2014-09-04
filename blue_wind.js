@@ -70,7 +70,6 @@ var canvas = null;
 var buffer = null; 
 var ctx = null;
 var pointBuffer = [];
-var canvasMaxWidth = 900; 
 
 var genRandCurve = function(minX, maxX, minY, maxY, xDev) {
 	var yDelta = maxY - minY;
@@ -91,15 +90,22 @@ var genRandCurve = function(minX, maxX, minY, maxY, xDev) {
 	}];
 };
 
+var initCanvasSize = function(canvas) {
+	var canvasAspectRatio = 3;
+	var canvasMaxWidth = 900; 
+	var canvasMinHeight = 70;
+
+	canvas.width = Math.min(window.innerWidth, canvasMaxWidth);
+	canvas.height = Math.max(window.innerHeight / canvasAspectRatio, canvasMinHeight);
+};
+
 var resizeTimeout = undefined;
 window.onresize = function() {
 	if (typeof resizeTimeout !== 'undefined') {
 		clearTimeout(resizeTimeout);
 	}
 	resizeTimeout = setTimeout(function() {
-		var canvasAspectRatio = 3;
-		canvas.width = Math.min(window.innerWidth, canvasMaxWidth);
-		canvas.height = window.innerHeight / canvasAspectRatio;
+		initCanvasSize();
 		ctx.fillStyle = 'white';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -117,7 +123,7 @@ window.onload = function() {
 	canvas.addEventListener("click", function(event) {
 		pointBuffer.push(getMousePos(canvas, event));
 	});
-
+	initCanvasSize(canvas);
 
 	ctx = canvas.getContext("2d");
 	ctx.beginPath();
