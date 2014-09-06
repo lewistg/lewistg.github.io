@@ -24,13 +24,13 @@ body {
 	z-index: 0;
 }
 
-@media only screen and (max-width: 900px) {
+/*@media only screen and (max-width: 900px) {
 	#front-wind {
 		width: 100%;
 		margin: 0;
 		left: auto;
 	}
-}
+}*/
 
 
 #logo {
@@ -58,7 +58,7 @@ body {
 	color: #ffffff;
 }
 
-@media only screen and (max-width: 755px) {
+/*@media only screen and (max-width: 755px) {
 	#logo {
 		position: absolute;
 		right: 24px;
@@ -85,4 +85,4 @@ body {
 	#logo {
 		width: 70px;
 	}
-}
+}*/

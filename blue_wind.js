@@ -119,7 +119,7 @@ var initCanvasSize = function(canvas) {
 
 window.onload = function() {
 	canvas = document.getElementById("front-wind");
-	initCanvasSize(canvas);
+	//initCanvasSize(canvas);
 
 	ctx = canvas.getContext("2d");
 	ctx.beginPath();
