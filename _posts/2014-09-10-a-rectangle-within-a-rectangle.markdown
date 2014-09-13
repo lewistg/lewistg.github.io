@@ -47,10 +47,6 @@ Rearranging \\(\frac{w_1}{h_1} < \frac{w_2}{h_2}\\) yields \\(w_1 \cdot
 \frac{h_2}{h_1} < w_2\\), and note that \\(h_1 \cdot \frac{h_2}{h_1} = h_2\\).
 Thus, \\(a = \frac{h_2}{h_1}\\).
 
-### Some intuition
-
-While proof-like explanations leave readers with a sterile list of facts, tey often do not provide any insight.
-
 ### Conclusion
 
 This brief post has illustrated how comparing aspect ratios can be used to
