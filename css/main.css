@@ -1,7 +1,11 @@
 body {
-    font-family: Tahoma, Verdana, Segoe, sans-serif;
-    margin: 0;
-    color: #1b2b45;
+	font-family: Tahoma, Verdana, Segoe, sans-serif;
+	margin: 0;
+	color: #1b2b45;
+}
+
+a:visited {
+	color: #1b2b45;
 }
 
 .non-scroller {
@@ -44,11 +48,10 @@ body {
 
 .page-content {
 	max-width: 550px;
-	margin: auto;
+	margin: 25px auto;
 	position: relative;
 	z-index: 5;
 	background-image: url("/bg.png");
-	padding: 50px 0;
 }
 
 .header_wrapper h1 {
@@ -58,31 +61,41 @@ body {
 	color: #ffffff;
 }
 
-/*@media only screen and (max-width: 755px) {
-	#logo {
-		position: absolute;
-		right: 24px;
-		left: auto;
-		bottom: -10px;
-	}
+.menu-tab .border-strip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100px;
+    width: 10px;
+    border-left: solid 3px blue;;
+    border-bottom: solid 20px rgba(0,0,0,0);
 }
 
-@media only screen and (max-width: 455px) {
-	h1 {
-		margin-top: 0;
-		width: 100%;
-	}
+.center {
+	display: block;
+	margin: 0 auto;
+}
 
-	.page-content {
-		padding-top: 0;
-	}
+.lemma {
+	width: 85%;
+}
 
-	.page-content :not(.header_wrapper) {
-		padding-left: 5px;
-		padding-right: 5px;
-	}
+.nav-list {
+    text-align: right;
+    border-bottom: solid #1b2b45 3px;
+}
 
-	#logo {
-		width: 70px;
-	}
-}*/
+.nav-list li {
+    display: inline-block;
+    margin: 0;
+    padding: 5px;
+}
+
+.excerpt {
+	font-size: 0.95em;
+}
+
+.date {
+	font-size: 0.75em;
+	font-style: italic;
+}

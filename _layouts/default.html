@@ -4,16 +4,17 @@
 	{% include head.html %}
 
 <body>
-	{% include header.html %}
-
 	<div class="non-scroller">
-	{% if page.include_wind%}
+	{% if page.include_wind %}
 		<canvas id="front-wind" width="900" height="300"></canvas>
 	{% endif %}
 	<img id="logo" src="/tree.svg"></img>
 	</div>
 
 	<div class="page-content">
+		{% if page.exclude_nav != true %}
+			{% include header.html %}
+		{% endif %}
 		{{ content }}
 	</div>
 
