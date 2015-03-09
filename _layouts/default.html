@@ -8,7 +8,7 @@
 	{% if page.include_wind %}
 		<canvas id="front-wind" width="900" height="300"></canvas>
 	{% endif %}
-	<img id="logo" src="/tree.svg"></img>
+	<img id="logo" src="/assets/tree.svg"></img>
 	</div>
 
 	<div class="page-content">
@@ -19,8 +19,8 @@
 	</div>
 
 	{% if page.include_wind %}
-		<script type="text/javascript" src="bez.js"></script>
-		<script type="text/javascript" src="blue_wind.js"></script>
+		<script type="text/javascript" src="/js/bez.js"></script>
+		<script type="text/javascript" src="/js/blue_wind.js"></script>
 	{% endif %}
 
 	{% include footer.html %}

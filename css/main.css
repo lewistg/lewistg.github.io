@@ -1,6 +1,14 @@
+* {
+	margin: 0;
+}
+
 body {
 	font-family: Tahoma, Verdana, Segoe, sans-serif;
-	margin: 0;
+	color: rgb(68, 68, 68);
+	font-size: 15px;
+}
+
+h1, h2 {
 	color: #1b2b45;
 }
 
@@ -51,14 +59,18 @@ a:visited {
 	margin: 25px auto;
 	position: relative;
 	z-index: 5;
-	background-image: url("/bg.png");
+	background-color: rgba(255, 255, 255, 0.62);
 }
 
 .header_wrapper h1 {
-	padding: 10px;
-	text-align: center;
-	background-color: #1b2b45;
-	color: #ffffff;
+	color: #1b2b45;
+	border-bottom-style: solid;
+	border-width: 2px;
+}
+
+h2 {
+	font-size: 18px;
+	margin-top: 18px;
 }
 
 .menu-tab .border-strip {
