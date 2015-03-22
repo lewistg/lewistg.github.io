@@ -137,5 +137,13 @@ h2 {
 }
 
 .main-sections section h2 {
+	font-size: 23px;
+}
+
+.main-sections section div {
+	font-size: 18px;
+}
+
+.main-sections section h2 {
   text-align: right;
 }
