@@ -13,4 +13,4 @@ permalink: pretty
 highlighter: pygments
 
 redcarpet:
-   extensions: [no_fenced_code_blocks]
+        extensions: ["no_fenced_code_blocks", "tables"]
