@@ -1,43 +1,40 @@
 ---
-layout: default
-include_wind: true
-exclude_nav: true
 ---
-
-
-<header>
-	<h1 class="name-header">Ty G. Lewis</h1>
-</header>
-
-<div class="main-sections">
-  <section>
-    <h2>
-      About
-    </h2>
-    <div>
-      I am a software engineer and a Mormon.
-    </div>
-  </section>
-  
-  <section>
-    <h2>
-      Projects
-    </h2>
-    <div>
-	<a href="kc">Kindly Comets</a>: A small canvas project with some cosmic encouragement.</p>
-    </div>
-  </section>
-  
-   <section>
-    <h2>
-     Posts
-    </h2>
-	<div>
-		{% for post in site.categories.general %}
-			<a href="{{ post.url }}">{{ post.title }}</a>
-			<p class="excerpt">{{ post.excerpt }}</p>
-			<p class="date">{{ post.date | date: "%-d %B, %Y" }}</p>
-		{% endfor %}
-	</div>
-  </section>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+	{% include head-common.html %}
+	<meta name="description" content="Ty G. Lewis's personal website.">
+	<link rel="canonical" href="http://tyglewis.com/">
+	<title>Ty G. Lewis</title>
+</head>
+<body>
+	{% include background.html animated=true %}
+	{% capture mainContent %}
+		<header>
+			<h1 class="name-header">Ty G. Lewis</h1>
+		</header>
+		<div class="main-sections">
+			<section>
+			<h2>About</h2>
+			<div>I am a software engineer and a Mormon.</div>
+		  </section>
+		  <section>
+			<h2>Projects</h2>
+			<div><a href="kc">Kindly Comets</a>: A small canvas project with some cosmic encouragement.</p></div>
+		  </section>
+		   <section>
+			<h2>Posts</h2>
+			<div>
+				{% for post in site.categories.general %}
+					<a href="{{ post.url }}">{{ post.title }}</a>
+					<p class="excerpt">{{ post.excerpt }}</p>
+					<p class="date">{{ post.date | date: "%-d %B, %Y" }}</p>
+				{% endfor %}
+			</div>
+		  </section>
+		</div>
+	{% endcapture %}
+	{% include content-column.html columnContent=mainContent %}
+</body>
+</html>

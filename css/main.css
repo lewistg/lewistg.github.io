@@ -68,7 +68,7 @@ a, a:visited {
 	z-index: 1;
 }
 
-.page-content {
+.content-column {
 	max-width: 700px;
 	margin: 25px auto;
 	position: relative;

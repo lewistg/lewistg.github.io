@@ -1,15 +1,35 @@
 ---
-layout: default
 ---
-<div class="post">
+<!DOCTYPE html>
+<html>
+<head>
+	{% include head-common.html %}
+	<link rel="stylesheet" href="/css/prism.css">
+	<script type="text/javascript" src="/js/prism.js"></script>
+	<!-- MathJax-->
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({tex2jax: {
+			inlineMath: [['$','$'], ['\\(','\\)']],
+			displayMath: [['$$','$$'], ['\\[','\\]']],
+			processEscapes: false
+		}});
+	</script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+	{% include background.html animated=false%}
+	{% capture mainContent %}
+		<div class="post">
+		  <header class="post-header">
+		    <h1>{{ page.title }}</h1>
+		    <p class="meta">{{ page.date | date: "%b %-d, %Y" }}{% if page.author %} • {{ page.author }}{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
+		  </header>
 
-  <header class="post-header">
-    <h1>{{ page.title }}</h1>
-    <p class="meta">{{ page.date | date: "%b %-d, %Y" }}{% if page.author %} • {{ page.author }}{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
-  </header>
-
-  <article class="post-content">
-  {{ content }}
-  </article>
-
-</div>
+		  <article class="post-content">
+		  {{ content }}
+		  </article>
+		</div>
+	{% endcapture %}
+	{% include content-column.html columnContent=mainContent %}
+</body>
+</html>
