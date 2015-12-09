@@ -26,31 +26,30 @@ This algorithm is restricted to
 #Solution sketch
 
 Not only does $b^n = (b^2)^{n/2}$ but more generally
-$$b^n = (b^2)^{n/2} = (b^4)^{n/4} = (b^8)^{n/8} = (b^{16})^{n/16} = \cdots = (b^{2^i})^{n/2^i} = \cdots$$
-The pattern in this chain of equalities, moving left to right, hints at an
-iterative algorithm that uses "successive squaring" to calculate $b^n$. We may
-write, for example, a loop with the state variables $b$ and $n$ that
-respectively represent the base and exponent values. Each loop iteration could
-square the previous base value and halve the previous exponent as in the
-following "state transition" rules:
+$$b^n = (b^2)^{n/2} = (b^4)^{n/4} = (b^8)^{n/8} = (b^{16})^{n/16} = \cdots =
+(b^{2^i})^{n/2^i} = \cdots$$ The pattern in this chain of equalities, moving
+left to right, can be captured in code using a loop and two state variables we call 
+$b$ and $n$. We let $b$ represent the quantity in the parentheses, and we let
+$n$ represent the exponent quantity. The loop's state transition rules would be the
+following:
 $$b \leftarrow b^2$$
 $$n \leftarrow n / 2$$
-The loop terminates once the exponent value $n$ is completely reduced to 1, in which case
+Iteration terminates once the exponent value $n$ is completely reduced to 1, in which case
 the base value $b$ is our answer.
 
-An obvious issue that must be addressed is odd values of $n$; such cases
-require a more sophisticated state transition rule for $n$ than what we have so
-far. Let us say that $n$ is $2m + 1$, an odd number. Notice that
+While the state transition rules given above faithfully capture the pattern in
+our chain of inequalities, they do not address what to do with odd values of
+$n$. To explore, let us say that $n$ is $2m + 1$, an odd number. Notice that
 $$b^{2m+1} = (b)(b)^{2m}$$ Thus, one strategy we could adopt for odd exponents
 is factoring out a $b$ in order to obtain an even exponent value that can be
 halved. This would
 require keeping track of each factor that is factored out throughout the loop's
 iterations and then multiplying the final base value by these extra factors at
-the end. Where do we keep track of these factors? Recall, that the problem
-statement suggests the need for an extra state variable $a$; we can use $a$ as a
+the end. Where do we keep track of these extra factors? Recall that the problem
+statement allows for an extra state variable $a$; we can use $a$ as a
 running product of factored out factors.
 
-Given our strategy for odd exponents, our state transition rules now become
+Given our strategy for odd exponents, our state transition rules now become a more sophisticated:
 $$b \leftarrow b^2$$
 $$n \leftarrow
 \begin{cases}
@@ -65,7 +64,37 @@ ab & \text{if } n \nmid 2
 
 ##Example
 
-Let us say we are calculating $5^7$. The following table shows the state variables after each iteration.
+As an example, let us say we are calculating $5^7$. The following table shows the state variables after each iteration:
+
+<table style="border: 1px solid black;">
+	<tr>
+		<td>Iteration</td><td>State Variables</td><td>Transition</td>
+	</tr>
+	<tr>
+		<td>0</td><td>$b = 5$, $n = 7$, $a = 1$</td>
+	</tr>
+	<tr>
+		<td>1</td>
+		<td>
+			<p>$b = 25$</p>
+			<p>$n = 3$</p>
+			<p>$a = 5$</p>
+		</td>
+		<td>
+			<p>$b: 25 \leftarrow 5^2$</p>
+			<p>$n: 3 \leftarrow (7 - 1)/2$</p>
+			<p>$a: 5 \leftarrow (5)(1)$</p>
+		</td>
+	</tr>
+	<tr>
+		<td>2</td><td>$b = 625$, $n = 1$, $a = 125$</td>
+		<td>
+			<p>$b: 625 \leftarrow 25^2$</p>
+			<p>$n: 3 \leftarrow (7 - 1)/2$</p>
+			<p>$a: 5 \leftarrow (5)(1)$</p>
+		</td>
+	</tr>
+</table>
 
 we need a more sophisticated state transition rule for $n$.
 
