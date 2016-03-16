@@ -5,25 +5,23 @@ excerpt: Working my way through Structure and Interpretation of Computer Program
 categories: general
 ---
 
-Structure and Intepretation of Programs (SICP) explains logrithmic time
-complexity with an exponent calculation algorithm. The authors ask
-readers to reimplement the algorithm using iteration, and this post describes a
-possible solution.
+This post describes a solution to Structure and Intepretation of Programs'
+exercise 1.16 and how it relates to binary number
+representations.
 
-#The problem
+# The problem statement
 
-The exercise (1.16) is  the following:
+Exercise 1.16's is stated as follows:
 
 >Design a procedure that evolves an iterative exponentation process that uses successive squaring and uses a logarithmic number of steps, as does fast-expt.  (Hint: Using the observation that \\((b^{n/2})^2 = (b^2)^{n/2}\\), keep, along with the exponent \\(n\\) and base \\(b\\), an additional state variable \\(a\\), and define the state transformation in such a way that the product \\(ab^n\\) is unchanged from state to state. At the beginning of the process \\(a\\) is taken to be 1, and the answer is given by the value of \\(a\\) at the end of the process. In general, the technique of defining an invariant quantity that remains unchanged from state to state is a powerful way of to think about the design of iterative algorithms.)
 
-(Just by way of background, the algorithm fast-expt is the text's name for the
-recursive algorithm mentioned in the introduction.)
-
-This algorithm is restricted to
+It is worth noting  that at this point in the text, the authors, Abelson and Sussman, have already given
+recursive solution, which can be found here. Our task is to provide an
+equivalent iterative solution.
 
 # The solution
 
-Not only does $b^n = (b^2)^{n/2}$ but more generally
+Given the problem statement's hint, we can note that not only does $b^n = (b^2)^{n/2}$ but more generally
 $$b^n = (b^2)^{n/2} = (b^4)^{n/4} = (b^8)^{n/8} = (b^{16})^{n/16} = \cdots =
 (b^{2^i})^{n/2^i} = \cdots$$
 The left to right pattern in this chain of equalities suggest the following naive solution:
@@ -31,14 +29,20 @@ The left to right pattern in this chain of equalities suggest the following naiv
 (define (naive-fast-exp b n)
   (if (= n 1)
       b
-      (naive-fast-exp (square b) (/ n 2))))
+      (naive-fast-exp (square b) (quotient n 2))))
 {% endhighlight %}
-This naive solution has several shortcomings, the most obvious being it assumes
-the exponent is always divisible by 2. Nevertheless, this procedure exhibits
-the qualities we are looking for in our solution: It is iterative and uses the
-successive squaring strategy. Let us try to improve upon it to handle odd
-exponents as
-well.
+Of course, we can note some major shortcomings in this naive solution, the most
+obvious being it assumes the exponent is always divisible by 2. Nevertheless,
+it does do some of what we want; it iteratively uses successive squaring to
+progress towards an answer. In other words, it has the right form but, being
+naive, is missing some key details. Let us try to improve upon it.
+
+It is worth understanding the mechanics of _how_ `naive-fast-exp`'s assumption
+`n` is always divisible by 2 leads to incorrect answers. We can do this by
+tracing the execution of an example problem. Let us trace `(naive-fast-exp 5 23)`.
+
+this bad assumption gets `naive-fast-exp`
+off track, so we can fix it.
 
 When $n$ is some odd number $2m + 1$, then note $b^{2m+1} = bb^{2m}$. Thus, whenever the exponent is odd, we can
 factor out a $b$ to make the power even again for the next iteration. Of
@@ -82,56 +86,101 @@ Although not immediately obvious, this algorithm has a strong relationship to th
   (if (= n 0) 1 (fast-exp-iter b n 1)))
 {% endhighlight %}
 
-To see why this is, we need only look more closely at the value of the state
-variables at each iteration. The following table traces the state variable
-values for the expression 
-
-
-##Example
-
-As an example, let us say we are calculating $5^7$. The following table shows the state variables after each iteration:
+Let us use a concrete example to see why this is. The following table traces
+the state variable values for the expression `(fast-exp-iter 5 23 1)`.
 
 <table class="center" cellpadding="5" style="width: 350px; margin-top: 20px; margin-bottom: 20px;">
 	<thead>
 	<tr>
-		<td>Iteration</td><td>State variables</td><td>Transition</td>
+		<td>Execution trace</td><td>State variables</td>
 	</tr>
 	</thead>
-	<tbody>
 	<tr>
-		<td>0</td>
 		<td>
-			<p>$b = 5$</p>
-			<p>$n = 7$</p>
-			<p>$a = 1$</p>
-		</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>1</td>
-		<td>
-			<p>$b = 25$</p>
-			<p>$n = 3$</p>
-			<p>$a = 5$</p>
+{% highlight lisp %}
+	(fast-exp-iter 5 23 1)
+{% endhighlight %}
 		</td>
 		<td>
-			<p>$b: 25 \leftarrow 5^2$</p>
-			<p>$n: 3 \leftarrow (7 - 1)/2$</p>
-			<p>$a: 5 \leftarrow (5)(1)$</p>
+{% highlight lisp %}
+b = 5^1
+n = 23
+a = 1
+{% endhighlight %}
 		</td>
 	</tr>
 	<tr>
-		<td>2</td>
 		<td>
-			<p>$b = 625$</p>
-			<p>$n = 1$</p>
-			<p>$a = 125$</p>
+{% highlight lisp %}
+	(fast-exp-iter 25 11 5)
+{% endhighlight %}
 		</td>
 		<td>
-			<p>$b: 625 \leftarrow 25^2$</p>
-			<p>$n: 3 \leftarrow (7 - 1)/2$</p>
-			<p>$a: 5 \leftarrow (5)(1)$</p>
+{% highlight lisp %}
+b = 5^2
+n = 11
+a = 5^1
+{% endhighlight %}
 		</td>
 	</tr>
-	</tbody>
+	<tr>
+		<td>
+{% highlight lisp %}
+	(fast-exp-iter 125 5 125)
+{% endhighlight %}
+		</td>
+		<td>
+{% highlight lisp %}
+b = 5^4
+n = 5
+a = (5^1)(5^2)
+{% endhighlight %}
+		</td>
+	</tr>
+	<tr>
+		<td>
+{% highlight lisp %}
+	(fast-exp-iter 625 5 15625)
+{% endhighlight %}
+		</td>
+		<td>
+{% highlight lisp %}
+b = 5^8
+n = 2
+a = (5^1)(5^2)(5^4)
+{% endhighlight %}
+		</td>
+	</tr>
+	<tr>
+		<td>
+{% highlight lisp %}
+	(fast-exp-iter 152587890625 2 78125)
+{% endhighlight %}
+		</td>
+		<td>
+{% highlight lisp %}
+b = 5^16
+n = 1
+a = (5^1)(5^2)(5^4)
+{% endhighlight %}
+		</td>
+	</tr>
+	<tr>
+		<td>
+{% highlight lisp %}
+	(* 152587890625 78125)
+{% endhighlight %}
+		</td>
+		<td>
+{% highlight lisp %}
+b = 5^16
+n = 1
+a = (5^1)(5^2)(5^4)
+{% endhighlight %}
+		</td>
+	</tr>
 </table>
+
+The final result, obtained by multiplying the factored out factors stored in
+`a` by the final `b`, is equal to the product `(5^1)(5^2)(5^4)(5^16)`. Notice
+how each factor's exponent is a power of 2.
