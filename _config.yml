@@ -8,9 +8,7 @@ twitter_username: jekyllrb
 github_username:  jekyll
 
 # Build settings
-markdown: redcarpet
-permalink: pretty
-highlighter: pygments
+markdown: kramdown
+highlighter: rogue
 
-redcarpet:
-   extensions: [no_fenced_code_blocks]
+permalink: pretty

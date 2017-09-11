@@ -213,6 +213,8 @@ PLATFORMS
 
 DEPENDENCIES
   github-pages
+  kramdown (~> 1.13)
+  rouge (~> 1.11)
 
 BUNDLED WITH
    1.15.4
