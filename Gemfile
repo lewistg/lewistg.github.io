@@ -1,8 +1,6 @@
 source 'https://rubygems.org'
-gem 'github-pages', group: :jekyll_plugins
 
-# Added at 2017-09-11 18:33:27 -0600 by ty:
-gem "kramdown", "~> 1.13"
-
-# Added at 2017-09-11 18:33:52 -0600 by ty:
-gem "rouge", "~> 1.11"
+gem 'github-pages', "~> 232", group: :jekyll_plugins
+gem "kramdown", "~> 2.4.0"
+gem "rouge", "~> 3.30.0"
+gem "ffi", "~> 1.16.3"
