@@ -1,0 +1,184 @@
+---
+layout: post
+title:  "cgroup v2 essentials"
+date:  Fri Aug 23 20:14:00 MST 2024 
+excerpt: 
+    In Linux you can limit a process's resource consumption using a kernel feature called "cgroups."
+    In this post we use a simple example to cover the basics of version 2 of this feature (cgroup v2).
+categories: linux
+---
+
+In Linux you can limit a process's resource consumption using a kernel feature called "cgroups."
+In this post we use a simple example to cover the basics of version 2 of this feature (cgroup v2).
+
+Below is a simple C program that allocates the number of bytes we pass as a command line argument.
+Our goal will be to use a cgroup to limit the amount of memory the program can allocate.
+
+```c
+#include <errno.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/mman.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "error: missing <num_bytes> argument\n");
+        return 1;
+    }
+    uintmax_t num_bytes = strtoumax(argv[1], NULL, 10);
+    if (num_bytes == UINTMAX_MAX && errno == ERANGE) {
+        fprintf(stderr, "error <num_bytes> argument too large\n");
+        return 1;
+    }
+
+    uint8_t *bytes = malloc(num_bytes * sizeof(uint8_t));
+    if (bytes == NULL) {
+        fprintf(stderr, "failed to allocate <num_bytes>\n");
+        return 1;
+    }
+    printf("successfully allocated %ld bytes\n", num_bytes);
+
+    // Force the allocated memory into RAM and prevent it from being paged
+    mlock(bytes, num_bytes);
+    printf("successfully forced allocated memory into RAM\n");
+
+    pid_t pid = getpid();
+    printf("pid: %d\n\n", pid);
+    printf("press any key to exit");
+    getchar();
+
+    return 0;
+}
+```
+
+Here's the output from running the program with an argument of 20MB:
+```
+ty@ty:~/dev/cgroup-v2-demos/memory-limits $ ./a.out "$((1024 * 1024 * 20))"
+successfully allocated 20971520 bytes
+pid: 5936
+
+press any key to exit
+```
+
+In linux every process belongs to a cgroup.
+You can see which cgroup a process owns a process by looking at the `/proc/<pid>/cgroup` pseudo file.
+For example here's the cgroup my terminal belongs to:
+```
+ty@ty:~/dev/cgroup-v2-demos/memory-limits $ cat /proc/self/cgroup
+0::/user.slice/user-1000.slice/user@1000.service/app.slice/app-org.gnome.Terminal.slice/vte-spawn-da05a52a-7168-43c4-9781-63e247aad125.scope
+```
+
+And here's the cgroup managing PID 5936 from our example run:
+```
+ty@ty:~/dev/cgroup-v2-demos/memory-limits $ cat /proc/5936/cgroup
+0::/user.slice/user-1000.slice/user@1000.service/app.slice/app-org.gnome.Terminal.slice/vte-spawn-da05a52a-7168-43c4-9781-63e247aad125.scope
+```
+
+Note how the cgroup for our example program is the same as our interactive shell.
+This is because child processes intially belong to the same cgroups as their parent process.
+
+Similar to `/proc`, the API that Linux provides for creating and managing cgroups is a pseudo file system.
+In Ubuntu 24.04 this file system is mounted at `/sys/fs/cgroup`.
+
+We can create a new cgroup using `mkdir`. Let's make one to limit our example program's memory; we'll call it "foo":
+```
+ty@ty:~ $ cd /sys/fs/cgroup
+ty@ty:/sys/fs/cgroup $ sudo mkdir foo
+```
+
+An `ls` on `/sys/fs/cgroup/foo` reveals that the new `foo` node was automatically populated with various pseudo files:
+```
+ty@ty:/sys/fs/cgroup/foo $ ls
+cgroup.controllers      cgroup.procs            cpu.stat             memory.low        memory.stat          pids.events
+cgroup.events           cgroup.stat             io.pressure          memory.max        memory.swap.current  pids.max
+cgroup.freeze           cgroup.subtree_control  memory.current       memory.min        memory.swap.events
+cgroup.kill             cgroup.threads          memory.events        memory.numa_stat  memory.swap.high
+cgroup.max.depth        cgroup.type             memory.events.local  memory.oom.group  memory.swap.max
+cgroup.max.descendants  cpu.pressure            memory.high          memory.pressure   pids.current
+```
+
+We configure cgroups via these files.
+To set the absolute maximum amount of memory that a process belonging to the `foo` cgroup and can use, we write the byte limit to the `memory.max` file.
+Let's limit the processes belonging to `foo` to 10MB of memory:
+
+```
+ty@ty:/sys/fs/cgroup/foo $ sudo bash -c "echo 10M > memory.max"
+```
+
+As a test, let's run our program in the `foo` cgroup using the `cgexec` command.
+(To use `cgexec` you may need to install the `cgroup-tools` package.)
+
+```
+ty@ty:~/dev/cgroup-v2-demos/memory-limits $ sudo cgexec -g memory:foo ./a.out "$((1024 * 1024 * 20))"
+successfully allocated 20971520 bytes
+Killed
+```
+
+If we check `dmesg`, we can see the oom-killer killed our program:
+```
+ty@ty:~/dev/cgroup-v2-demos/memory-limits $ dmesg
+...
+[61980.373241] oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=/,mems_allowed=0,oom_memcg=/foo,task_memcg=/foo,task=a.out,pid=6594,uid=0
+[61980.373246] Memory cgroup out of memory: Killed process 6594 (a.out) total-vm:23260kB, anon-rss:9976kB, file-rss:1440kB, shmem-rss:0kB, UID:0 pgtables:68kB oom_score_adj:0
+```
+
+It's worth noting that cgroup resource limits are applied against the _combined_ usage of each process belonging to the cgroup.
+For exmaple, below we attempt to launch four instances of our example program with argument of 3MB each.
+The first three each launch without error:
+```
+# Terminal 1
+ty@ty:~/dev/cgroup-v2-demos$ sudo cgexec -g memory:foo ./a.out "$((1024 * 1024 * 3))"
+successfully allocated 3145728 bytes
+pid: 6690
+
+press any key to exit
+```
+
+```
+# Terminal 2
+ty@ty:~/dev/cgroup-v2-demos$ sudo cgexec -g memory:foo ./a.out "$((1024 * 1024 * 3))"
+successfully allocated 3145728 bytes
+pid: 6694
+
+press any key to exit
+```
+
+```
+# Terminal 3
+ty@ty:~/dev/cgroup-v2-demos$ sudo cgexec -g memory:foo ./a.out "$((1024 * 1024 * 3))"
+successfully allocated 3145728 bytes
+pid: 6697
+
+press any key to exit
+```
+
+The fourth instance also seems to launch fine:
+```
+# Terminal 4
+ty@ty:~/dev/cgroup-v2-demos$ sudo cgexec -g memory:foo ./a.out "$((1024 * 1024 * 3))"
+successfully allocated 3145728 bytes
+pid: 6697
+
+press any key to exit
+```
+
+But if I look back at `Terminal 2`, we note the oom-killer killed the process:
+```
+# Terminal 2
+ty@ty:~/dev/cgroup-v2-demos$ sudo cgexec -g memory:foo ./a.out "$((1024 * 1024 * 3))"
+successfully allocated 3145728 bytes
+pid: 6694
+
+press any key to exit
+Killed
+```
+
+No one process exceeded the 10MB cgroup limit, but combined they did.
+
+### Other resources
+
+* [Control Group V2](https://docs.kernel.org/admin-guide/cgroup-v2.html): The official documentation
+* [cgroup-v2-demos](https://github.com/lewistg/cgroup-v2-demos/blob/master/memory-limits/main.c): Repository for example program
