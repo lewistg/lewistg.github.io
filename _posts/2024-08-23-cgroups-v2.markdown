@@ -63,7 +63,7 @@ pid: 5936
 press any key to exit
 ```
 
-In linux every process belongs to a cgroup.
+In Linux every process belongs to a cgroup.
 You can see which cgroup a process owns a process by looking at the `/proc/<pid>/cgroup` pseudo file.
 For example here's the cgroup my terminal belongs to:
 ```
@@ -83,7 +83,7 @@ This is because child processes intially belong to the same cgroups as their par
 Similar to `/proc`, the API that Linux provides for creating and managing cgroups is a pseudo file system.
 In Ubuntu 24.04 this file system is mounted at `/sys/fs/cgroup`.
 
-We can create a new cgroup using `mkdir`. Let's make one to limit our example program's memory; we'll call it "foo":
+We can create a new cgroup using `mkdir`. Let's make one to limit our example program's memory. We'll call it "foo":
 ```
 ty@ty:~ $ cd /sys/fs/cgroup
 ty@ty:/sys/fs/cgroup $ sudo mkdir foo
@@ -126,8 +126,8 @@ ty@ty:~/dev/cgroup-v2-demos/memory-limits $ dmesg
 ```
 
 It's worth noting that cgroup resource limits are applied against the _combined_ usage of each process belonging to the cgroup.
-For exmaple, below we attempt to launch four instances of our example program with argument of 3MB each.
-The first three each launch without error:
+For example, below we attempt to launch four instances of our example program with argument of 3MB each.
+The first three attempts launch without error:
 ```
 # Terminal 1
 ty@ty:~/dev/cgroup-v2-demos$ sudo cgexec -g memory:foo ./a.out "$((1024 * 1024 * 3))"
