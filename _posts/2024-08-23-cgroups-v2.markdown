@@ -8,10 +8,10 @@ excerpt:
 categories: linux
 ---
 
-In Linux you can limit a process's resource consumption using a kernel feature called "cgroups."
+In Linux you can limit a set of process's resource consumption using a kernel feature called "cgroups."
 In this post we use a simple example to cover the basics of version 2 of this feature (cgroup v2).
 
-Below is a simple C program that allocates the number of bytes we pass as a command line argument.
+Below is a small C program that allocates the number of bytes we pass as a command line argument.
 Our goal will be to use a cgroup to limit the amount of memory the program can allocate.
 
 ```c
@@ -160,7 +160,7 @@ The fourth instance also seems to launch fine:
 # Terminal 4
 ty@ty:~/dev/cgroup-v2-demos$ sudo cgexec -g memory:foo ./a.out "$((1024 * 1024 * 3))"
 successfully allocated 3145728 bytes
-pid: 6697
+pid: 6700
 
 press any key to exit
 ```
