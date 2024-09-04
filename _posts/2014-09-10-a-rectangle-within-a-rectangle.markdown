@@ -5,6 +5,7 @@ date:   2014-09-10 19:36:46
 excerpt: Recently, I have been coming across the problem of scaling one rectangle to fit "snugly" within another rectangle. This post gives some formal reasoning behind one solution. 
 categories: general 
 published: false
+enableMathJax: true
 ---
 
 ### The problem

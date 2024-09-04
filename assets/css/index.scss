@@ -1,0 +1,76 @@
+---
+---
+@import "default";
+@import "variables";
+
+body {
+    width: $default-content-width;
+    margin: auto;
+    margin-top: 25px;
+    position: relative;
+}
+
+.footer-graphic {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	height: 400px;
+	width: 100%;
+    z-index: -1;
+
+    #tree {
+        width: 108px;
+        height: auto;
+        position: absolute; 
+        bottom: -10px;
+        left: calc(50% + 240px);
+    }
+
+    #front-wind {
+        display: block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.name-header {
+	text-align: center;
+	color: white;
+	background-color: $dark-blue;
+	height: 50px;
+	line-height: 50px;
+	font-family: 'PT Sans Caption', Verdana, Segoe, sans-serif;;
+}
+
+/**
+ * New two columns
+ */
+.main-sections {
+  display: table;
+  border-spacing: 20px 30px;
+  background-color: rgba(255, 255, 255, 0.88);
+}
+
+.main-sections section {
+  display: table-row;
+}
+
+.main-sections section h2, .main-sections section div {
+ display: table-cell;
+}
+
+.main-sections section h2 {
+	font-size: 23px;
+}
+
+.main-sections section div {
+	font-size: 18px;
+}
+
+.main-sections section h2 {
+  text-align: right;
+}

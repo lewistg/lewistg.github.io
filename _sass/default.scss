@@ -1,0 +1,32 @@
+@import "variables";
+
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans+Caption:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Domine:wght@400..700&family=PT+Sans+Caption:wght@400;700&display=swap');
+
+* {
+	margin: 0;
+}
+
+p, h1, h2, h3, h5, h6 {
+	margin-bottom: 10px;
+}
+
+p {
+    font-size: 16px;
+    line-height: 1.5em;
+}
+
+body {
+	font-family: 'Domine', Verdana, Segoe, sans-serif;
+	color: rgb(68, 68, 68);
+	font-size: 15px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'PT Sans Caption', Verdana, Segoe, sans-serif;
+    color: $dark-blue;
+}
+
+a, a:visited {
+	color: $dark-blue;
+}

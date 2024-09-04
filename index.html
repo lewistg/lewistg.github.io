@@ -1,34 +1,49 @@
 ---
-layout: default
-include_wind: true
-exclude_nav: true
 ---
+<!DOCTYPE html>
+<html>
+<head>
+    {% include default-meta-tags.html %}
+	<meta name="description" content="Ty G. Lewis's personal website.">
 
+	<title>Ty G. Lewis</title>
 
-<header>
-	<h1 class="name-header">Ty G. Lewis</h1>
-</header>
+	<link rel="canonical" href="http://tyglewis.com/">
 
-<div class="main-sections">
-  <section>
-    <h2>
-      About
-    </h2>
-    <div>
-        I am a software engineer and a member of <a href="https://www.churchofjesuschrist.org/" target="_blank">The Church of Jesus Christ of Latter-day Saints</a>.
+    <link rel="stylesheet" href="/assets/css/index.css">
+
+    {% include google-analytics.html %}
+</head>
+<body>
+    <div class="footer-graphic">
+        <canvas id="front-wind" width="900" height="300"></canvas>
+        <img id="tree" src="/assets/tree.svg"></img>
+        <script type="text/javascript" src="/js/bez.js"></script>
+        <script type="text/javascript" src="/js/blue_wind.js"></script>
     </div>
-  </section>
-  
-   <section>
-    <h2>
-     Posts
-    </h2>
-	<div>
-		{% for post in site.posts %}
-			<a href="{{ post.url }}">{{ post.title }}</a>
-			<p class="excerpt">{{ post.excerpt }}</p>
-			<p class="date">{{ post.date | date: "%-d %B, %Y" }}</p>
-		{% endfor %}
-	</div>
-  </section>
-</div>
+
+    <header>
+        <h1 class="name-header">Ty G. Lewis</h1>
+    </header>
+
+    <div class="main-sections">
+      <section>
+        <h2>About</h2>
+        <div>
+            I am a software engineer and a member of <a href="https://www.churchofjesuschrist.org/" target="_blank">The Church of Jesus Christ of Latter-day Saints</a>.
+        </div>
+      </section>
+      
+       <section>
+        <h2>Posts</h2>
+        <div>
+            {% for post in site.posts %}
+                <a href="{{ post.url }}">{{ post.title }}</a>
+                <p class="excerpt">{{ post.excerpt }}</p>
+                <p class="date">{{ post.date | date: "%-d %B, %Y" }}</p>
+            {% endfor %}
+        </div>
+      </section>
+    </div>
+</body>
+</html>
